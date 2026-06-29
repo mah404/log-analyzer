@@ -9,47 +9,71 @@ on:
 
 jobs:
   syntax-check:
+    name: 1 Syntax prüfen
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - run: for file in scripts/*.sh; do bash -n "$file"; done
+    - name: Repository herunterladen
+      uses: actions/checkout@v4
+    - name: Bash Syntax prüfen
+      run: for file in scripts/*.sh; do bash -n "$file"; done
 
   project-validation:
+    name: 2 Projekt validieren
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - run: chmod +x scripts/*.sh
-    - run: bash scripts/02_validate_project.sh
+    - name: Repository herunterladen
+      uses: actions/checkout@v4
+    - name: Skripte ausführbar machen
+      run: chmod +x scripts/*.sh
+    - name: Projekt prüfen
+      run: bash scripts/02_validate_project.sh
 
   log-tests:
+    name: 3 Tests ausführen
     runs-on: ubuntu-latest
-    needs: [ syntax-check, project-validation ]
+    needs:
+    - syntax-check
+    - project-validation
     steps:
-    - uses: actions/checkout@v4
-    - run: chmod +x scripts/*.sh tests/*.sh
-    - run: bash scripts/04_run_tests.sh
+    - name: Repository herunterladen
+      uses: actions/checkout@v4
+    - name: Skripte ausführbar machen
+      run: chmod +x scripts/*.sh tests/*.sh
+    - name: Tests starten
+      run: bash scripts/04_run_tests.sh
 
   build-report:
+    name: 4 Report bauen
     runs-on: ubuntu-latest
-    needs: [ log-tests ]
+    needs:
+    - log-tests
     steps:
-    - uses: actions/checkout@v4
-    - run: chmod +x scripts/*.sh
-    - run: bash scripts/05_build_report.sh
-    - uses: actions/upload-artifact@v4
+    - name: Repository herunterladen
+      uses: actions/checkout@v4
+    - name: Skripte ausführbar machen
+      run: chmod +x scripts/*.sh tests/*.sh
+    - name: Report erzeugen
+      run: bash scripts/05_build_report.sh
+    - name: Report als Artifact hochladen
+      uses: actions/upload-artifact@v4
       with:
         name: log-report
         path: dist/report.md
 
   package-project:
+    name: 5 Projekt paketieren
     runs-on: ubuntu-latest
-    needs: [ build-report ]
+    needs:
+    - build-report
     steps:
-    - uses: actions/checkout@v4
-    - run: chmod +x scripts/*.sh
-    - run: bash scripts/05_build_report.sh
-    - run: bash scripts/06_package_project.sh
-    - uses: actions/upload-artifact@v4
+    - name: Repository herunterladen
+      uses: actions/checkout@v4
+    - name: Skripte ausführbar machen
+      run: chmod +x scripts/*.sh tests/*.sh
+    - name: Paket erstellen
+      run: bash scripts/06_package_project.sh
+    - name: Paket als Artifact hochladen
+      uses: actions/upload-artifact@v4
       with:
-        name: projekt-paket
-        path: dist/projekt-paket.tar.gz
+        name: log-analyzer-package
+        path: artifact/log-analyzer-package.tar.gz
