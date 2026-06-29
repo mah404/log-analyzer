@@ -1,0 +1,16 @@
+name: 04 Nightly Check
+
+on:
+  schedule:
+  - cron: "0 7 * * 1"
+  workflow_dispatch:
+
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: chmod +x scripts/*.sh
+    - run: bash scripts/02_validate_project.sh
+    - run: bash scripts/04_run_tests.sh

@@ -1,0 +1,19 @@
+name: 03 Manuelles Skript mit Eingabe
+
+on:
+  workflow_dispatch:
+    inputs:
+      student_name:
+        description: "Dein Name"
+        required: false
+        default: "Teilnehmer"
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: chmod +x scripts/*.sh
+    - run: bash scripts/07_manual_greeting.sh
+      env:
+        STUDENT_NAME: ${{ github.event.inputs.student_name }}

@@ -1,0 +1,55 @@
+name: 02 CI Pipeline (5 Jobs)
+
+on:
+  push:
+    branches:
+    - main
+  workflow_dispatch:
+
+
+jobs:
+  syntax-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: for file in scripts/*.sh; do bash -n "$file"; done
+
+  project-validation:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: chmod +x scripts/*.sh
+    - run: bash scripts/02_validate_project.sh
+
+  log-tests:
+    runs-on: ubuntu-latest
+    needs: [ syntax-check, project-validation ]
+    steps:
+    - uses: actions/checkout@v4
+    - run: chmod +x scripts/*.sh tests/*.sh
+    - run: bash scripts/04_run_tests.sh
+
+  build-report:
+    runs-on: ubuntu-latest
+    needs: [ log-tests ]
+    steps:
+    - uses: actions/checkout@v4
+    - run: chmod +x scripts/*.sh
+    - run: bash scripts/05_build_report.sh
+    - uses: actions/upload-artifact@v4
+      with:
+        name: log-report
+        path: dist/report.md
+
+  package-project:
+    runs-on: ubuntu-latest
+    needs: [ build-report ]
+    steps:
+    - uses: actions/checkout@v4
+    - run: chmod +x scripts/*.sh
+    - run: bash scripts/05_build_report.sh
+    - run: bash scripts/06_package_project.sh
+    - uses: actions/upload-artifact@v4
+      with:
+        name: projekt-paket
+        path: dist/projekt-paket.tar.gz
