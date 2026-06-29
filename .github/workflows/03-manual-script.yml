@@ -6,7 +6,7 @@ on:
       student_name:
         description: "Dein Name"
         required: false
-        default: "Teilnehmer"
+        default: "Mahtab"
 
 jobs:
   greeting:
