@@ -1,22 +1,25 @@
-#!/usr/bin/env bash
+name: Manuelle Pipeline
 
-source "$(dirname "$0")/common.sh"
+on:
+  workflow_dispatch:
+    inputs:
+      student_name:
+        description: "Name, welcher im Bash-Skript 07_manual_greeting.sh verwendet werden soll"
+        required: false
+        default: "Ibrahim"
 
-print_header "Manuelles Skript ausführen"
+jobs:
+  info:
+    runs-on: ubuntu-latest
 
-create_dist_folder
+    steps:
+      - name: Repository herunterladen
+        uses: actions/checkout@v4
 
-student_name="${STUDENT_NAME:-Teilnehmer}"
+      - name: Skripte ausführbar machen
+        run: chmod +x scripts/*.sh tests/*.sh
 
-cat > dist/greeting.txt <<EOF
-Hallo $student_name,
-
-dieser Text wurde durch ein Bash Skript in GitHub Actions erstellt.
-
-Das zeigt:
-- Ein Workflow kann manuell gestartet werden.
-- Ein YAML Workflow kann Variablen an ein Bash Skript übergeben.
-- Ein Bash Skript kann Dateien erzeugen.
-EOF
-
-cat dist/greeting.txt
+      - name: Namensbegrüßung
+        run: bash scripts/07_manual_greeting.sh
+        env:
+          STUDENT_NAME: ${{ github.event.inputs.student_name }}
